@@ -1,0 +1,303 @@
+# Мод "Rift Bottles" — Бутылки для разломов
+
+## Техническое задание
+
+### Концепция
+Мод добавляет бутылки, позволяющие захватывать темпоральные разломы из мира, транспортировать их и размещать обратно. Каждый уровень бутылки имеет побочные эффекты при нахождении в инвентаре.
+
+### Бутылки
+
+#### Тир 1 — "Хлипкая бутылка для разломов"
+- **Крафт:**
+  ```
+  Гвозди  Доска   Гвозди
+  Стекло  Рж.шест×4 Стекло
+  Пусто   Кварц.стекло Пусто
+  ```
+  Гвозди = `metalnailsandstrips-*` (любой металл), Доска = `plank-*` (любое дерево),
+  Стекло = `glass-plain`, Рж.шест = `gear-rusty`, Кварцевое стекло = `glass-quartz`
+- **Побочные эффекты:**
+  - Дрифтеры спавнятся вокруг игрока (соблюдая правила спавна)
+  - Темпоральная стабильность падает на -10% в секунду
+  - Все визуальные эффекты разлома активны
+
+#### Тир 2 — "Плотная бутылка для разломов"
+- **Крафт:** Хлипкая бутылка + топлёный жир + смола
+  - `fat-rendered` + `resin`
+- **Побочные эффекты:**
+  - Дрифтеров НЕ спавнит
+  - Стабильность -5%/сек
+  - Визуальные эффекты на месте
+
+#### Тир 3 — "Стабильная бутылка для разломов"
+- **Крафт:** Плотная бутылка + темпоральная шестерня (`gear-temporal`)
+- **Побочных эффектов НЕТ**
+
+#### Бутылка бэд трипа
+- **Крафт v1 (из тира 2 заполненной):**
+  ```
+  Хрусталь  Темп.шестерня  Хрусталь
+  Хрусталь  Бутылка2(заполн.) Хрусталь
+  Хрусталь  Рж.шестерня    Хрусталь
+  ```
+  Хрусталь = `clearquartz`, Темп.шестерня = `gear-temporal`, Рж.шестерня = `gear-rusty`
+- **Крафт v2 (из тира 3 заполненной):**
+  ```
+  Хрусталь  Пусто  Хрусталь
+  Хрусталь  Бутылка3(заполн.) Хрусталь
+  Хрусталь  Пусто  Хрусталь
+  ```
+- **Эффект:** При нахождении в инвентаре/слотах бижютерии — вечный эффект нулевой темпоральной стабильности БЕЗ фактического нуля стабильности (только визуал)
+- **НЕ позволяет** выкладывать разлом обратно в мир
+
+#### Портативная колба очищения
+- **Крафт:**
+  ```
+  Хрусталь  Темп.шестерня  Хрусталь
+  Хрусталь  Бура           Хрусталь
+  Хрусталь  Хрусталь       Хрусталь
+  ```
+  Бура = `ore-borax`
+- **Эффект:** При ношении в инвентаре/бижютерии — ВЫКЛЮЧАЕТ визуальные и звуковые эффекты темпоральной нестабильности и шторма (урон и спавн кошмарных дрифтеров остаются, пропадает ТОЛЬКО визуал и звуки)
+- **Расходуется** при использовании (одноразовая)
+
+#### Колба очищения
+- **Крафт:**
+  ```
+  Льн.шпагат  Рж.шестерня  Льн.шпагат
+  Хрусталь    Бура         Хрусталь
+  Хрусталь    Порох        Хрусталь
+  ```
+  Льн.шпагат = `flaxtwine`, Порох = `blastingpowder`
+- **Результат:** 8 штук за раз
+- **Использование:** ПКМ в области разлома — ПРОСТО УДАЛЯЕТ ЕГО
+- **Расходуется** при использовании
+
+### Общая механика
+- **Сбор разлома:** ПКМ с пустой бутылкой рядом с разломом (в пределах ~5 блоков) — заполняет бутылку, удаляет разлом из мира
+- **Выкладывание:** Shift+ПКМ с заполненной бутылкой рядом с местом, где НЕТ разлома — размещает разлом обратно, опустошает бутылку
+- **Swap:** Shift+ПКМ с заполненной бутылкой рядом с другим разломом — заполняет бутылку новым разломом (старый теряется? или swap?)
+- **Апгрейд:** Бутылки при крафте ПОТРЕБЛЯЮТСЯ — это апгрейд. Заполненная бутылка тира N → заполненная бутылка тира N+1. Содержимое (разлом) СОХРАНЯЕТСЯ при апгрейде.
+
+---
+
+## Разведка: Как устроен разлом в Vintage Story
+
+### Ключевой факт
+Разлом — это **НЕ блок и НЕ сущность**. Это простой C# объект `Vintagestory.GameContent.Rift` из `VSSurvivalMod.dll`.
+
+### Класс Rift
+```csharp
+[ProtoContract]
+public class Rift
+{
+    [ProtoMember(1)] public int RiftId;
+    [ProtoMember(2)] public float Size = 1f;
+    [ProtoMember(3)] public Vec3d Position;
+    [ProtoMember(4)] public double SpawnedTotalHours;
+    [ProtoMember(5)] public double DieAtTotalHours;
+    // + transient поля: Visible, HasLineOfSight, VolumeMul, accum
+}
+```
+
+### ModSystemRifts
+- Хранит `Dictionary<int, Rift> riftsById`
+- Доступ: `api.ModLoader.GetModSystem<ModSystemRifts>()` или `api.ModLoader.GetModSystem("ModSystemRifts")`
+- Событие `OnRiftSpawned` — вызывается при спавне нового разлома
+- RiftWard перехватывает это событие и обнуляет `Size` для блокировки
+- Разломы сохраняются в мир под ключом `"rifts"`
+- Сетевая синхронизация через канал `"rifts"` с пакетом `RiftList`
+
+### RiftRenderer
+- Рендерит каждый rift из `riftsById` как billboard-квад с шейдером `rift.fsh`
+- Каждый rift получает уникальный `riftIndex` (порядковый номер)
+- Визуальный эффект: rust-цветовое искажение через Perlin шум
+
+### Время жизни rift
+- SpawnedTotalHours = текущее время
+- DieAtTotalHours = текущее + 8..56 игровых часов
+- `GetNowSize()` возвращает размер с fade-in/out
+
+### Спавнrift
+- Рядом с игроком (в пределах ~190 блоков)
+- На заменяемом блоке или не на жидкости
+- Уровень света < 3
+- Кап: `8 * mobSpawnMul * clamp(1.1 - daylight, 0.45, 1.0)`
+
+---
+
+## Реализация: Структура мода
+
+```
+RiftBottles/
+├── modinfo.json
+├── assets/riftbottles/
+│   ├── itemtypes/
+│   │   ├── riftbottle1.json
+│   │   ├── riftbottle2.json
+│   │   ├── riftbottle3.json
+│   │   ├── riftbottlebadtrip.json
+│   │   ├── portablepurifier.json
+│   │   └── purifier.json
+│   ├── recipes/grid/
+│   │   ├── riftbottle1.json
+│   │   ├── riftbottle2.json
+│   │   ├── riftbottle3.json
+│   │   ├── riftbottlebadtrip.json
+│   │   ├── portablepurifier.json
+│   │   └── purifier.json
+│   ├── textures/item/
+│   │   └── *.png (placeholder через ImageMagick)
+│   └── lang/ru.json
+└── src/RiftBottlesMod.cs
+```
+
+### C# классы
+
+1. **`RiftBottlesMod : ModSystem`** — регистрация behaviors, серверный тик
+2. **`BehaviorRiftBottle : CollectibleBehavior`** — ПКМ: сбор/выкладывание rift
+3. **`BehaviorInventoryEffect : CollectibleBehavior`** — побочные эффекты (спавн дрифтеров, снижение стабильности)
+4. **`BehaviorBadTrip : CollectibleBehavior`** — вечный visual glitch эффект
+5. **`BehaviorPurifier : CollectibleBehavior`** — подавление визуала/звуков
+6. **`BehaviorRiftRemover : CollectibleBehavior`** — удаление rift ПКМ
+
+### NBT бутылки
+```
+riftData: {
+  riftId: int,
+  position: { x, y, z },
+  size: float,
+  spawnedTotalHours: double,
+  dieAtTotalHours: double
+}
+filled: bool
+```
+
+### Код крафтов (JSON)
+
+**Бутылка тир 1:**
+```json
+{
+  "ingredientPattern": "NGN,G4G, Q ",
+  "ingredients": {
+    "N": { "type": "item", "code": "metalnailsandstrips-*" },
+    "G": { "type": "block", "code": "glass-plain" },
+    "P": { "type": "item", "code": "plank-*" },
+    "4": { "type": "item", "code": "gear-rusty", "quantity": 4 },
+    "Q": { "type": "block", "code": "glass-quartz" }
+  },
+  "width": 3, "height": 3,
+  "output": { "type": "item", "code": "riftbottles:riftbottle1", "quantity": 1 }
+}
+```
+
+**Бутылка тир 2:**
+```json
+{
+  "ingredientPattern": "F,R, B ",
+  "ingredients": {
+    "F": { "type": "item", "code": "fat-rendered" },
+    "R": { "type": "item", "code": "resin" },
+    "B": { "type": "item", "code": "riftbottles:riftbottle1" }
+  },
+  "output": { "type": "item", "code": "riftbottles:riftbottle2" }
+}
+```
+
+**Бутылка тир 3:**
+```json
+{
+  "ingredientPattern": "T, B ",
+  "ingredients": {
+    "T": { "type": "item", "code": "gear-temporal" },
+    "B": { "type": "item", "code": "riftbottles:riftbottle2" }
+  },
+  "output": { "type": "item", "code": "riftbottles:riftbottle3" }
+}
+```
+
+**Bad Trip v1:**
+```json
+{
+  "ingredientPattern": "XSX,XBX,XRX",
+  "ingredients": {
+    "X": { "type": "item", "code": "clearquartz" },
+    "S": { "type": "item", "code": "gear-temporal" },
+    "B": { "type": "item", "code": "riftbottles:riftbottle2", "langCode": "riftbottle2-filled" },
+    "R": { "type": "item", "code": "gear-rusty" }
+  },
+  "output": { "type": "item", "code": "riftbottles:riftbottlebadtrip" }
+}
+```
+
+**Bad Trip v2:**
+```json
+{
+  "ingredientPattern": "X X,XBX,X X",
+  "ingredients": {
+    "X": { "type": "item", "code": "clearquartz" },
+    "B": { "type": "item", "code": "riftbottles:riftbottle3", "langCode": "riftbottle3-filled" }
+  },
+  "output": { "type": "item", "code": "riftbottles:riftbottlebadtrip" }
+}
+```
+
+**Портативная колба:**
+```json
+{
+  "ingredientPattern": "XTX,XBX,XXX",
+  "ingredients": {
+    "X": { "type": "item", "code": "clearquartz" },
+    "T": { "type": "item", "code": "gear-temporal" },
+    "B": { "type": "item", "code": "ore-borax" }
+  },
+  "output": { "type": "item", "code": "riftbottles:portablepurifier", "quantity": 1 }
+}
+```
+
+**Колба очищения:**
+```json
+{
+  "ingredientPattern": "LRL,XBX,XPX",
+  "ingredients": {
+    "X": { "type": "item", "code": "clearquartz" },
+    "L": { "type": "item", "code": "flaxtwine" },
+    "R": { "type": "item", "code": "gear-rusty" },
+    "B": { "type": "item", "code": "ore-borax" },
+    "P": { "type": "item", "code": "blastingpowder" }
+  },
+  "output": { "type": "item", "code": "riftbottles:purifier", "quantity": 8 }
+}
+```
+
+### Ссылки на кодовые артефакты Vintage Story
+
+| Что | Где |
+|-----|-----|
+| Класс Rift | `VSSurvivalMod.dll` → `Vintagestory.GameContent.Rift` |
+| ModSystemRifts | `VSSurvivalMod.dll` → `Vintagestory.GameContent.ModSystemRifts` |
+| RiftRenderer | `VSSurvivalMod.dll` → `Vintagestory.GameContent.RiftRenderer` |
+| Шейдер rift | `assets/survival/shaders/rift.fsh` |
+| Конфиг погоды разломов | `assets/survival/config/riftweather.json` |
+| Темп.стабильность игрока | Behavior `temporalStabilityAffected` (patch из `playertemporalstability.json`) |
+| Glitch эффект | `uniform float glitchEffectStrength` в `final.fsh` и `entityanimated.fsh` |
+| Api ModSystem access | `api.ModLoader.GetModSystem<T>()` или `GetModSystem(string)` |
+| RiftWard пример | `BlockEntityRiftWard` — подписывается на `OnRiftSpawned`, обнуляет Size |
+
+### Русские названия (из ru.json)
+
+| Ключ | Значение |
+|------|----------|
+| `item-gear-rusty` | Ржавая шестерёнка |
+| `item-gear-temporal` | Темпоральная шестерёнка |
+| `block-glass-plain` | Стекло |
+| `block-glass-quartz` | Кварцевое стекло |
+| `item-metalnailsandstrips-*` | Гвозди и пластины (...) |
+| `item-plank-*` | Доска (...) |
+| `item-fat-rendered` | Топлёный жир |
+| `item-resin` | Смола |
+| `item-clearquartz` | Чистый кварц |
+| `item-ore-borax` | Бура |
+| `item-flaxtwine` | Льняной шпагат |
+| `item-blastingpowder` | Взрывчатый порошок |
+| `block-riftward` | Страж разлома |

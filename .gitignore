@@ -1,0 +1,19 @@
+# Build outputs
+*.dll
+*.pdb
+*.exe
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.csproj.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp
+*.tmp
+*.bak
