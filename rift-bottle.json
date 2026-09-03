@@ -1,0 +1,124 @@
+{
+	"editor": {
+		"backDropShape": "",
+		"collapsedPaths": "",
+		"allAngles": false,
+		"entityTextureMode": false,
+		"singleTexture": false,
+		"vsFormatConverted": false
+	},
+	"textureWidth": 32,
+	"textureHeight": 32,
+	"textureSizes": {
+		"quartz.png": [32, 32],
+		"leaded-brown.png": [32, 32],
+		"violet.png": [32, 32],
+		"resin.png": [32, 32],
+		"rust.png": [32, 32],
+		"temporalgear.png": [32, 32],
+		"blue.png": [32, 32],
+		"plain.png": [32, 32]
+	},
+	"textures": {
+		"quartz.png": "block/glass/quartz",
+		"leaded-brown.png": "block/glass/leaded-brown",
+		"violet.png": "block/christmas/bauble/violet",
+		"resin.png": "block/resin",
+		"rust.png": "block/metal/lantern/rust",
+		"temporalgear.png": "item/resource/temporalgear",
+		"blue.png": "block/clay/brickstairs/blue",
+		"plain.png": "block/cloth/linen/plain"
+	},
+	"elements": [
+		{
+			"name": "root",
+			"from": [25, 0, 25],
+			"to": [25, 0, 25],
+			"rotationOrigin": [25, 0, 25],
+			"children": [
+				{
+					"name": "bottle-outside",
+					"from": [-12, 0, -12],
+					"to": [-6, 10, -6],
+					"rotationOrigin": [0, 0, 0],
+					"faces": {
+						"north": {"texture": "#quartz.png", "uv": [0, 3, 8, 13], "autoUv": false, "snapUv": false},
+						"east": {"texture": "#quartz.png", "uv": [0, 3, 8, 13], "autoUv": false, "snapUv": false},
+						"south": {"texture": "#quartz.png", "uv": [0, 3, 8, 13], "autoUv": false, "snapUv": false},
+						"west": {"texture": "#quartz.png", "uv": [0, 3, 8, 13], "autoUv": false, "snapUv": false},
+						"up": {"texture": "#quartz.png", "uv": [0, 0, 8, 8], "autoUv": false, "snapUv": false},
+						"down": {"texture": "#quartz.png", "uv": [0, 0, 8, 8], "rotation": 180, "autoUv": false, "snapUv": false}
+					}
+				},
+				{
+					"name": "bottle-inside",
+					"from": [-11.5, 0.5, -11.5],
+					"to": [-6.5, 9.5, -6.5],
+					"rotationOrigin": [0.5, 0.5, 0.5],
+					"faces": {
+						"north": {"texture": "#quartz.png", "uv": [0, 3, 8, 13], "autoUv": false, "snapUv": false},
+						"east": {"texture": "#quartz.png", "uv": [0, 3, 8, 13], "autoUv": false, "snapUv": false},
+						"south": {"texture": "#quartz.png", "uv": [0, 3, 8, 13], "autoUv": false, "snapUv": false},
+						"west": {"texture": "#quartz.png", "uv": [0, 3, 8, 13], "autoUv": false, "snapUv": false},
+						"up": {"texture": "#quartz.png", "uv": [0, 0, 8, 8], "autoUv": false, "snapUv": false},
+						"down": {"texture": "#quartz.png", "uv": [0, 0, 8, 8], "rotation": 180, "autoUv": false, "snapUv": false}
+					}
+				},
+				{
+					"name": "top",
+					"from": [-10, 9.4, -10],
+					"to": [-8, 11.4, -8],
+					"rotationOrigin": [-9, 10, -9],
+					"faces": {
+						"north": {"texture": "#rust.png", "uv": [15, 23, 17, 25], "autoUv": false, "snapUv": false},
+						"east": {"texture": "#rust.png", "uv": [15, 23, 17, 25], "autoUv": false, "snapUv": false},
+						"south": {"texture": "#rust.png", "uv": [15, 23, 17, 25], "autoUv": false, "snapUv": false},
+						"west": {"texture": "#rust.png", "uv": [15, 23, 17, 25], "autoUv": false, "snapUv": false},
+						"up": {"texture": "#rust.png", "uv": [15, 23, 17, 25], "autoUv": false, "snapUv": false},
+						"down": {"texture": "#rust.png", "uv": [15, 23, 17, 25], "rotation": 180, "autoUv": false, "snapUv": false}
+					}
+				},
+				{
+					"name": "rift",
+					"from": [-9, 4, -9],
+					"to": [-9, 4, -9],
+					"rotationOrigin": [-9, 4, -9],
+					"children": [
+						{
+							"name": "rift-core",
+							"from": [-1, 0, -1],
+							"to": [1, 2, 1],
+							"rotationOrigin": [0, 1, 0],
+							"faces": {
+								"north": {"texture": "#leaded-brown.png", "uv": [0, 0, 2, 2], "autoUv": false, "snapUv": false},
+								"east": {"texture": "#leaded-brown.png", "uv": [0, 0, 2, 2], "autoUv": false, "snapUv": false},
+								"south": {"texture": "#leaded-brown.png", "uv": [0, 0, 2, 2], "autoUv": false, "snapUv": false},
+								"west": {"texture": "#leaded-brown.png", "uv": [0, 0, 2, 2], "autoUv": false, "snapUv": false},
+								"up": {"texture": "#leaded-brown.png", "uv": [0, 0, 2, 2], "autoUv": false, "snapUv": false},
+								"down": {"texture": "#leaded-brown.png", "uv": [0, 0, 2, 2], "rotation": 180, "autoUv": false, "snapUv": false}
+							},
+							"rotationX": 35,
+							"rotationY": -67.5,
+							"rotationZ": 22.5
+						},
+						{
+							"name": "rift-aura",
+							"from": [-2, -2, -2],
+							"to": [2, 4, 2],
+							"rotationOrigin": [0, 0, 0],
+							"faces": {
+								"north": {"texture": "#violet.png", "uv": [0, 0, 4, 6], "autoUv": false, "snapUv": false},
+								"east": {"texture": "#violet.png", "uv": [0, 0, 4, 6], "autoUv": false, "snapUv": false},
+								"south": {"texture": "#violet.png", "uv": [0, 0, 4, 6], "autoUv": false, "snapUv": false},
+								"west": {"texture": "#violet.png", "uv": [0, 0, 4, 6], "autoUv": false, "snapUv": false},
+								"up": {"texture": "#violet.png", "uv": [0, 0, 4, 4], "autoUv": false, "snapUv": false},
+								"down": {"texture": "#violet.png", "uv": [0, 0, 4, 4], "rotation": 180, "autoUv": false, "snapUv": false}
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"animations": []
+}
