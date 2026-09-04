@@ -20,14 +20,14 @@
 		"plain.png": [32, 32]
 	},
 	"textures": {
-		"quartz.png": "block/glass/quartz",
-		"leaded-brown.png": "block/glass/leaded-brown",
-		"violet.png": "block/christmas/bauble/violet",
-		"resin.png": "block/resin",
-		"rust.png": "block/metal/lantern/rust",
-		"temporalgear.png": "item/resource/temporalgear",
-		"blue.png": "block/clay/brickstairs/blue",
-		"plain.png": "block/cloth/linen/plain"
+		"quartz.png": "game:block/glass/quartz",
+		"leaded-brown.png": "game:block/glass/leaded-brown",
+		"violet.png": "game:block/glass/violet",
+		"resin.png": "game:block/resin",
+		"rust.png": "game:block/metal/tarnished/rusty-iron",
+		"temporalgear.png": "game:item/resource/temporalgear",
+		"blue.png": "game:block/glass/blue",
+		"plain.png": "game:block/glass/plain"
 	},
 	"elements": [
 		{
