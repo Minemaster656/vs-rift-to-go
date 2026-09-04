@@ -1,5 +1,6 @@
-	guiTransform: {
-		rotation: { x: 20, y: 0, z: 0 },
+        	guiTransform: {
+		translation: { x: -18, y: 6, z: 0 },
+		rotation: { x: 160, y: -13, z: 5 },
 		scale: 2
 	}
     	tpHandTransform: {
